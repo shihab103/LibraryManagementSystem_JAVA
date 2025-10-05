@@ -1,6 +1,8 @@
-com\example\DBConnection.class
 com\example\RegisterController.class
-com\example\LoginController.class
-com\example\Main.class
+com\example\IssuedBookDAO.class
+com\example\AddBookPage.class
+com\example\DBConnection.class
+com\example\ViewBooksPage.class
 com\example\model\User.class
-com\example\TestDB.class
+com\example\IssueBookPage.class
+com\example\ViewBooksPage$Book.class
