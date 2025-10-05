@@ -1,3 +1,6 @@
 com\example\DBConnection.class
+com\example\RegisterController.class
+com\example\LoginController.class
 com\example\Main.class
+com\example\model\User.class
 com\example\TestDB.class
