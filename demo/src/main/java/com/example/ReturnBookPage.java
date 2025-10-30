@@ -4,8 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.Date;
 
 public class ReturnBookPage {
 
@@ -20,23 +19,25 @@ public class ReturnBookPage {
         Button returnButton = new Button("Return Book");
         returnButton.setOnAction(e -> {
             try {
-                Connection conn = DBConnection.getConnection();
-                PreparedStatement ps = conn.prepareStatement(
-                        "UPDATE issued_books SET return_date = CURDATE() WHERE id = ?"
-                );
-                ps.setInt(1, Integer.parseInt(issuedIdField.getText()));
-                int rows = ps.executeUpdate();
-                Alert alert;
-                if(rows > 0) {
-                    alert = new Alert(Alert.AlertType.INFORMATION, "Book Returned!");
+                int issuedId = Integer.parseInt(issuedIdField.getText());
+                
+                boolean success = IssuedBookDAO.returnBook(issuedId, new Date(System.currentTimeMillis()));
+
+                if (success) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "✅ Book Returned! Book marked as available.");
+                    alert.show();
                 } else {
-                    alert = new Alert(Alert.AlertType.WARNING, "No such issued book found!");
+                    Alert alert = new Alert(Alert.AlertType.WARNING, "⚠️ Return Failed! Check Issued Book ID.");
+                    alert.show();
                 }
-                alert.show();
                 issuedIdField.clear();
+
+            } catch (NumberFormatException ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid ID format. Please enter numbers.");
+                alert.show();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Error returning book!");
+                Alert alert = new Alert(Alert.AlertType.ERROR, "An unexpected error occurred during return!");
                 alert.show();
             }
         });

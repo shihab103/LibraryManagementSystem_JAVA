@@ -4,8 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.Date; 
 
 public class IssueBookPage {
 
@@ -23,20 +22,28 @@ public class IssueBookPage {
         Button issueButton = new Button("Issue Book");
         issueButton.setOnAction(e -> {
             try {
-                Connection conn = DBConnection.getConnection();
-                PreparedStatement ps = conn.prepareStatement(
-                        "INSERT INTO issued_books(user_id, book_id, issue_date) VALUES (?, ?, CURDATE())"
-                );
-                ps.setInt(1, Integer.parseInt(userIdField.getText()));
-                ps.setInt(2, Integer.parseInt(bookIdField.getText()));
-                ps.executeUpdate();
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Book Issued!");
+                int userId = Integer.parseInt(userIdField.getText());
+                int bookId = Integer.parseInt(bookIdField.getText());
+
+                // DAO লেয়ার ব্যবহার করে বই ইস্যু করা হচ্ছে
+                boolean success = IssuedBookDAO.issueBook(userId, bookId, new Date(System.currentTimeMillis()));
+
+                if (success) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "✅ Book Issued! Book marked as unavailable.");
+                    alert.show();
+                    userIdField.clear();
+                    bookIdField.clear();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "❌ Error issuing book! Check User ID/Book ID.");
+                    alert.show();
+                }
+
+            } catch (NumberFormatException ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid ID format. Please enter numbers.");
                 alert.show();
-                userIdField.clear();
-                bookIdField.clear();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Error issuing book!");
+                Alert alert = new Alert(Alert.AlertType.ERROR, "An unexpected error occurred during issue!");
                 alert.show();
             }
         });

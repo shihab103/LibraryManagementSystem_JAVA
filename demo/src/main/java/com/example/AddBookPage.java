@@ -5,9 +5,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-
 public class AddBookPage {
 
     public void show() {
@@ -26,24 +23,22 @@ public class AddBookPage {
 
         Button addButton = new Button("Add Book");
         addButton.setOnAction(e -> {
-            try (Connection conn = DBConnection.getConnection()) {
-                PreparedStatement ps = conn.prepareStatement(
-                        "INSERT INTO books(title, author, isbn) VALUES (?, ?, ?)"
-                );
-                ps.setString(1, titleField.getText());
-                ps.setString(2, authorField.getText());
-                ps.setString(3, isbnField.getText());
-                ps.executeUpdate();
+            String title = titleField.getText();
+            String author = authorField.getText();
+            String isbn = isbnField.getText();
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Book Added!");
+            // DAO লেয়ার ব্যবহার করে বই যোগ করা হচ্ছে
+            boolean success = BookDAO.addBook(title, author, isbn);
+            
+            if (success) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "✅ Book Added Successfully!");
                 alert.show();
 
                 titleField.clear();
                 authorField.clear();
                 isbnField.clear();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Error adding book!");
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "❌ Error adding book! Check database connection or fields.");
                 alert.show();
             }
         });
