@@ -5,7 +5,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class LoginController extends Application {
 
@@ -27,7 +30,8 @@ public class LoginController extends Application {
             String password = passField.getText();
 
             if (loginUser(email, password)) {
-                message.setText("✅ Login Successful!");
+                Dashboard dashboard = new Dashboard();
+                dashboard.start(stage);
             } else {
                 message.setText("❌ Invalid Credentials!");
             }
@@ -35,11 +39,7 @@ public class LoginController extends Application {
 
         registerBtn.setOnAction(e -> {
             RegisterController register = new RegisterController();
-            try {
-                register.start(stage);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            register.start(stage);
         });
 
         VBox layout = new VBox(10);
@@ -53,18 +53,21 @@ public class LoginController extends Application {
     }
 
     private boolean loginUser(String email, String password) {
-        String query = "SELECT * FROM users WHERE email = ? AND password = ?";
+        String query = "SELECT password FROM users WHERE email = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, email);
-            ps.setString(2, password);
 
+            ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
-            return rs.next();
+
+            if (rs.next()) {
+                String hashed = rs.getString("password");
+                return BCrypt.checkpw(password, hashed);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     public static void main(String[] args) {

@@ -14,24 +14,26 @@ public class ReturnBookPage {
         VBox root = new VBox(10);
         root.setStyle("-fx-padding: 20;");
 
-        TextField issuedBookIdField = new TextField();
-        issuedBookIdField.setPromptText("Issued Book ID");
-
-        DatePicker returnDatePicker = new DatePicker();
+        TextField issuedIdField = new TextField();
+        issuedIdField.setPromptText("Issued Book ID");
 
         Button returnButton = new Button("Return Book");
         returnButton.setOnAction(e -> {
             try {
                 Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(
-                        "UPDATE issued_books SET return_date = ? WHERE id = ?"
+                        "UPDATE issued_books SET return_date = CURDATE() WHERE id = ?"
                 );
-                ps.setDate(1, java.sql.Date.valueOf(returnDatePicker.getValue()));
-                ps.setInt(2, Integer.parseInt(issuedBookIdField.getText()));
-                ps.executeUpdate();
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Book Returned!");
+                ps.setInt(1, Integer.parseInt(issuedIdField.getText()));
+                int rows = ps.executeUpdate();
+                Alert alert;
+                if(rows > 0) {
+                    alert = new Alert(Alert.AlertType.INFORMATION, "Book Returned!");
+                } else {
+                    alert = new Alert(Alert.AlertType.WARNING, "No such issued book found!");
+                }
                 alert.show();
-                issuedBookIdField.clear();
+                issuedIdField.clear();
             } catch (Exception ex) {
                 ex.printStackTrace();
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Error returning book!");
@@ -39,10 +41,14 @@ public class ReturnBookPage {
             }
         });
 
-        root.getChildren().addAll(new Label("Return Book"), issuedBookIdField, returnDatePicker, returnButton);
-
+        root.getChildren().addAll(new Label("Return Book"), issuedIdField, returnButton);
         stage.setScene(new Scene(root, 300, 200));
         stage.setTitle("Return Book");
         stage.show();
+    }
+
+    // For Dashboard compatibility
+    public void display() {
+        show();
     }
 }

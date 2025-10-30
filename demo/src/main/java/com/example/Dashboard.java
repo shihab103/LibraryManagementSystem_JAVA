@@ -10,32 +10,30 @@ public class Dashboard extends Application {
 
     @Override
     public void start(Stage stage) {
-        stage.setTitle("📚 Library Management System - Dashboard");
+        VBox root = new VBox(10);
+        root.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
         Button addBookBtn = new Button("Add Book");
-        Button viewBooksBtn = new Button("View Books");
-        Button issueBookBtn = new Button("Issue Book");
-        Button returnBookBtn = new Button("Return Book");
-        Button logoutBtn = new Button("Logout");
+        addBookBtn.setOnAction(e -> new AddBookPage().show());
 
-        addBookBtn.setOnAction(e -> AddBookPage.display());
-        viewBooksBtn.setOnAction(e -> ViewBooksPage.display());
-        issueBookBtn.setOnAction(e -> IssueBookPage.display());
-        returnBookBtn.setOnAction(e -> ReturnBookPage.display());
+        Button viewBooksBtn = new Button("View Books");
+        viewBooksBtn.setOnAction(e -> new ViewBooksPage().show());
+
+        Button logoutBtn = new Button("Logout");
         logoutBtn.setOnAction(e -> {
-            stage.close();
-            Main.main(null); // Back to Login page
+            LoginController login = new LoginController();
+            login.start(stage);
         });
 
-        VBox layout = new VBox(15);
-        layout.getChildren().addAll(addBookBtn, viewBooksBtn, issueBookBtn, returnBookBtn, logoutBtn);
+        root.getChildren().addAll(addBookBtn, viewBooksBtn, logoutBtn);
 
-        Scene scene = new Scene(layout, 300, 300);
+        Scene scene = new Scene(root, 300, 200);
+        stage.setTitle("Library Dashboard");
         stage.setScene(scene);
         stage.show();
     }
 
-    public static void display() {
-        Application.launch();
+    public static void main(String[] args) {
+        launch(args);
     }
 }

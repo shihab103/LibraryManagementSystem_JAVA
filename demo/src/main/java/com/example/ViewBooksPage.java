@@ -3,11 +3,10 @@ package com.example;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -20,61 +19,34 @@ public class ViewBooksPage {
         root.setStyle("-fx-padding: 20;");
 
         TableView<Book> table = new TableView<>();
-        TableColumn<Book, Integer> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-
         TableColumn<Book, String> titleCol = new TableColumn<>("Title");
-        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+        titleCol.setCellValueFactory(data -> data.getValue().titleProperty());
 
         TableColumn<Book, String> authorCol = new TableColumn<>("Author");
-        authorCol.setCellValueFactory(new PropertyValueFactory<>("author"));
+        authorCol.setCellValueFactory(data -> data.getValue().authorProperty());
 
         TableColumn<Book, String> isbnCol = new TableColumn<>("ISBN");
-        isbnCol.setCellValueFactory(new PropertyValueFactory<>("isbn"));
+        isbnCol.setCellValueFactory(data -> data.getValue().isbnProperty());
 
-        table.getColumns().addAll(idCol, titleCol, authorCol, isbnCol);
+        table.getColumns().addAll(titleCol, authorCol, isbnCol);
 
-        ObservableList<Book> books = FXCollections.observableArrayList();
-        try {
-            Connection conn = DBConnection.getConnection();
+        ObservableList<Book> data = FXCollections.observableArrayList();
+
+        try (Connection conn = DBConnection.getConnection()) {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM books");
             while (rs.next()) {
-                books.add(new Book(
-                        rs.getInt("id"),
-                        rs.getString("title"),
-                        rs.getString("author"),
-                        rs.getString("isbn")
-                ));
+                data.add(new Book(rs.getString("title"), rs.getString("author"), rs.getString("isbn")));
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        table.setItems(books);
-        root.getChildren().add(table);
+        table.setItems(data);
+        root.getChildren().addAll(new Label("All Books"), table);
 
-        stage.setScene(new Scene(root, 500, 400));
+        stage.setScene(new Scene(root, 400, 300));
         stage.setTitle("View Books");
         stage.show();
-    }
-
-    public static class Book {
-        private int id;
-        private String title;
-        private String author;
-        private String isbn;
-
-        public Book(int id, String title, String author, String isbn) {
-            this.id = id;
-            this.title = title;
-            this.author = author;
-            this.isbn = isbn;
-        }
-
-        public int getId() { return id; }
-        public String getTitle() { return title; }
-        public String getAuthor() { return author; }
-        public String getIsbn() { return isbn; }
     }
 }

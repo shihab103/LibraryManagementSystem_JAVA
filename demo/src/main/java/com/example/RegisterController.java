@@ -6,6 +6,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class RegisterController {
 
@@ -36,11 +37,7 @@ public class RegisterController {
 
         backBtn.setOnAction(e -> {
             LoginController login = new LoginController();
-            try {
-                login.start(stage);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            login.start(stage);
         });
 
         VBox layout = new VBox(10);
@@ -54,15 +51,17 @@ public class RegisterController {
     }
 
     private boolean registerUser(String name, String email, String password) {
+        String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
         String query = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
+
             ps.setString(1, name);
             ps.setString(2, email);
-            ps.setString(3, password);
+            ps.setString(3, hashed);
 
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;

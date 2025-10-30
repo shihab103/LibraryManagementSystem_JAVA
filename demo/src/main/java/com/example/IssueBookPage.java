@@ -20,18 +20,15 @@ public class IssueBookPage {
         TextField bookIdField = new TextField();
         bookIdField.setPromptText("Book ID");
 
-        DatePicker issueDatePicker = new DatePicker();
-
         Button issueButton = new Button("Issue Book");
         issueButton.setOnAction(e -> {
             try {
                 Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(
-                        "INSERT INTO issued_books(user_id, book_id, issue_date) VALUES (?, ?, ?)"
+                        "INSERT INTO issued_books(user_id, book_id, issue_date) VALUES (?, ?, CURDATE())"
                 );
                 ps.setInt(1, Integer.parseInt(userIdField.getText()));
                 ps.setInt(2, Integer.parseInt(bookIdField.getText()));
-                ps.setDate(3, java.sql.Date.valueOf(issueDatePicker.getValue()));
                 ps.executeUpdate();
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Book Issued!");
                 alert.show();
@@ -44,10 +41,14 @@ public class IssueBookPage {
             }
         });
 
-        root.getChildren().addAll(new Label("Issue Book"), userIdField, bookIdField, issueDatePicker, issueButton);
-
+        root.getChildren().addAll(new Label("Issue Book"), userIdField, bookIdField, issueButton);
         stage.setScene(new Scene(root, 300, 250));
         stage.setTitle("Issue Book");
         stage.show();
+    }
+
+    // For Dashboard compatibility
+    public void display() {
+        show();
     }
 }
