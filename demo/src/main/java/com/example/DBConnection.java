@@ -12,7 +12,7 @@ public class DBConnection {
     public static Connection getConnection() {
         try {
             Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("✅ Database Connected!");
+            // System.out.println("✅ Database Connected!"); // ড্যাশবোর্ড লোডিং এর সময় এটি সরিয়ে দেওয়া হলো
             return conn;
         } catch (SQLException e) {
             System.out.println("❌ Database Connection Failed!");

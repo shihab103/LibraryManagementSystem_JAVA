@@ -1,22 +1,23 @@
 package com.example;
 
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import java.sql.Date;
 
 public class ReturnBookPage {
 
-    public void show() {
-        Stage stage = new Stage();
+    public Node getPane() {
         VBox root = new VBox(10);
-        root.setStyle("-fx-padding: 20;");
+        root.setStyle("-fx-padding: 40; -fx-alignment: top_left; -fx-font-size: 16px;");
 
         TextField issuedIdField = new TextField();
         issuedIdField.setPromptText("Issued Book ID");
+        issuedIdField.setMaxWidth(300);
 
         Button returnButton = new Button("Return Book");
+        returnButton.setStyle("-fx-font-size: 14px; -fx-background-color: #3498db; -fx-text-fill: white;");
+
         returnButton.setOnAction(e -> {
             try {
                 int issuedId = Integer.parseInt(issuedIdField.getText());
@@ -42,14 +43,7 @@ public class ReturnBookPage {
             }
         });
 
-        root.getChildren().addAll(new Label("Return Book"), issuedIdField, returnButton);
-        stage.setScene(new Scene(root, 300, 200));
-        stage.setTitle("Return Book");
-        stage.show();
-    }
-
-    // For Dashboard compatibility
-    public void display() {
-        show();
+        root.getChildren().addAll(new Label("📥 Return Book"), issuedIdField, returnButton);
+        return root;
     }
 }

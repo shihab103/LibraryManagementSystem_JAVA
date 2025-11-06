@@ -3,11 +3,15 @@ package com.example;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BookDAO {
 
+    /**
+     * নতুন বই ডেটাবেসে যোগ করে।
+     */
     public static boolean addBook(String title, String author, String isbn) {
         try (Connection conn = DBConnection.getConnection()) {
             String sql = "INSERT INTO books (title, author, isbn, available) VALUES (?, ?, ?, true)";
@@ -23,6 +27,9 @@ public class BookDAO {
         }
     }
 
+    /**
+     * ডেটাবেস থেকে সব বইয়ের তালিকা নিয়ে আসে।
+     */
     public static List<String> getAllBooks() {
         List<String> books = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {
@@ -36,5 +43,46 @@ public class BookDAO {
             e.printStackTrace();
         }
         return books;
+    }
+
+    // --- ড্যাশবোর্ড স্ট্যাটিস্টিকসের জন্য নতুন মেথড ---
+
+    /**
+     * লাইব্রেরিতে মোট বইয়ের সংখ্যা গণনা করে।
+     */
+    public static int countTotalBooks() {
+        return executeCountQuery("SELECT COUNT(*) FROM books");
+    }
+
+    /**
+     * বর্তমানে উপলব্ধ বইয়ের সংখ্যা গণনা করে।
+     */
+    public static int countAvailableBooks() {
+        return executeCountQuery("SELECT COUNT(*) FROM books WHERE available = true");
+    }
+
+    /**
+     * সিস্টেমে মোট ব্যবহারকারীর সংখ্যা গণনা করে (যারা রেজিস্ট্রেশন করেছে)।
+     */
+    public static int countTotalUsers() {
+        return executeCountQuery("SELECT COUNT(*) FROM users");
+    }
+
+    /**
+     * একটি সাধারণ COUNT(*) SQL কোয়েরি চালিয়ে সংখ্যাটি রিটার্ন করে।
+     */
+    private static int executeCountQuery(String query) {
+        int count = 0;
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
     }
 }

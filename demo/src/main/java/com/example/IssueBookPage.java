@@ -1,31 +1,32 @@
 package com.example;
 
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import java.sql.Date; 
 
 public class IssueBookPage {
 
-    public void show() {
-        Stage stage = new Stage();
+    public Node getPane() {
         VBox root = new VBox(10);
-        root.setStyle("-fx-padding: 20;");
+        root.setStyle("-fx-padding: 40; -fx-alignment: top_left; -fx-font-size: 16px;");
 
         TextField userIdField = new TextField();
         userIdField.setPromptText("User ID");
+        userIdField.setMaxWidth(300);
 
         TextField bookIdField = new TextField();
         bookIdField.setPromptText("Book ID");
+        bookIdField.setMaxWidth(300);
 
         Button issueButton = new Button("Issue Book");
+        issueButton.setStyle("-fx-font-size: 14px; -fx-background-color: #f39c12; -fx-text-fill: white;");
+
         issueButton.setOnAction(e -> {
             try {
                 int userId = Integer.parseInt(userIdField.getText());
                 int bookId = Integer.parseInt(bookIdField.getText());
 
-                // DAO লেয়ার ব্যবহার করে বই ইস্যু করা হচ্ছে
                 boolean success = IssuedBookDAO.issueBook(userId, bookId, new Date(System.currentTimeMillis()));
 
                 if (success) {
@@ -48,14 +49,7 @@ public class IssueBookPage {
             }
         });
 
-        root.getChildren().addAll(new Label("Issue Book"), userIdField, bookIdField, issueButton);
-        stage.setScene(new Scene(root, 300, 250));
-        stage.setTitle("Issue Book");
-        stage.show();
-    }
-
-    // For Dashboard compatibility
-    public void display() {
-        show();
+        root.getChildren().addAll(new Label("📤 Issue Book to User"), userIdField, bookIdField, issueButton);
+        return root;
     }
 }
