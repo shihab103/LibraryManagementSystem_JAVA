@@ -18,22 +18,19 @@ public class ViewBooksPage {
         TableView<Book> table = new TableView<>();
         table.setPlaceholder(new Label("No books found in the library."));
 
-        // --- Book ID Column ---
+        // Columns...
         TableColumn<Book, Number> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(data -> data.getValue().idProperty());
         idCol.setPrefWidth(60);
 
-        // --- Title Column ---
         TableColumn<Book, String> titleCol = new TableColumn<>("Title");
         titleCol.setCellValueFactory(data -> data.getValue().titleProperty());
         titleCol.setPrefWidth(200);
 
-        // --- Author Column ---
         TableColumn<Book, String> authorCol = new TableColumn<>("Author");
         authorCol.setCellValueFactory(data -> data.getValue().authorProperty());
         authorCol.setPrefWidth(200);
 
-        // --- ISBN Column ---
         TableColumn<Book, String> isbnCol = new TableColumn<>("ISBN");
         isbnCol.setCellValueFactory(data -> data.getValue().isbnProperty());
         isbnCol.setPrefWidth(150);
@@ -51,8 +48,7 @@ public class ViewBooksPage {
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("author"),
-                        rs.getString("isbn")
-                ));
+                        rs.getString("isbn")));
             }
 
         } catch (Exception e) {
@@ -61,11 +57,14 @@ public class ViewBooksPage {
 
         table.setItems(data);
 
+        // Make TableView take full height
+        VBox.setVgrow(table, javafx.scene.layout.Priority.ALWAYS);
+
         root.getChildren().addAll(
                 new Label("📖 All Books in Library"),
-                table
-        );
+                table);
 
         return root;
     }
+
 }
