@@ -22,13 +22,23 @@ public class ReturnBookPage {
             try {
                 int issuedId = Integer.parseInt(issuedIdField.getText());
                 
-                boolean success = IssuedBookDAO.returnBook(issuedId, new Date(System.currentTimeMillis()));
+                double fine = IssuedBookDAO.returnBook(issuedId, new Date(System.currentTimeMillis()));
 
-                if (success) {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "✅ Book Returned! Book marked as available.");
+                if (fine >= 0) {
+                    Alert alert;
+                    if (fine > 0) {
+                        alert = new Alert(Alert.AlertType.WARNING, 
+                            String.format("বই সফলভাবে ফেরত নেওয়া হয়েছে, কিন্তু বিলম্বের জন্য %.2f টাকা ফাইন হয়েছে।", fine), 
+                            ButtonType.OK);
+                    } else {
+                        alert = new Alert(Alert.AlertType.INFORMATION, "✅ বই সফলভাবে ফেরত নেওয়া হয়েছে! কোনো ফাইন নেই।");
+                    }
                     alert.show();
-                } else {
-                    Alert alert = new Alert(Alert.AlertType.WARNING, "⚠️ Return Failed! Check Issued Book ID.");
+                } else if (fine == -1) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "❌ ভুল ইস্যু আইডি। এই আইডি দিয়ে কোনো বই পাওয়া যায়নি বা ইতিমধ্যে ফেরত নেওয়া হয়েছে।");
+                    alert.show();
+                } else { 
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "❌ বই ফেরত নেওয়ার সময় অপ্রত্যাশিত ত্রুটি হয়েছে! ডাটাবেস চেক করুন।");
                     alert.show();
                 }
                 issuedIdField.clear();

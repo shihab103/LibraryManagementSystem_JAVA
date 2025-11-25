@@ -18,35 +18,54 @@ public class ViewBooksPage {
         TableView<Book> table = new TableView<>();
         table.setPlaceholder(new Label("No books found in the library."));
 
+        // --- Book ID Column ---
+        TableColumn<Book, Number> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(data -> data.getValue().idProperty());
+        idCol.setPrefWidth(60);
+
+        // --- Title Column ---
         TableColumn<Book, String> titleCol = new TableColumn<>("Title");
         titleCol.setCellValueFactory(data -> data.getValue().titleProperty());
         titleCol.setPrefWidth(200);
 
+        // --- Author Column ---
         TableColumn<Book, String> authorCol = new TableColumn<>("Author");
         authorCol.setCellValueFactory(data -> data.getValue().authorProperty());
         authorCol.setPrefWidth(200);
 
+        // --- ISBN Column ---
         TableColumn<Book, String> isbnCol = new TableColumn<>("ISBN");
         isbnCol.setCellValueFactory(data -> data.getValue().isbnProperty());
         isbnCol.setPrefWidth(150);
 
-        table.getColumns().addAll(titleCol, authorCol, isbnCol);
+        table.getColumns().addAll(idCol, titleCol, authorCol, isbnCol);
 
         ObservableList<Book> data = FXCollections.observableArrayList();
 
         try (Connection conn = DBConnection.getConnection()) {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT title, author, isbn FROM books");
+            ResultSet rs = stmt.executeQuery("SELECT id, title, author, isbn FROM books");
+
             while (rs.next()) {
-                data.add(new Book(rs.getString("title"), rs.getString("author"), rs.getString("isbn")));
+                data.add(new Book(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("author"),
+                        rs.getString("isbn")
+                ));
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         table.setItems(data);
-        root.getChildren().addAll(new Label("📖 All Books in Library"), table);
-        
+
+        root.getChildren().addAll(
+                new Label("📖 All Books in Library"),
+                table
+        );
+
         return root;
     }
 }

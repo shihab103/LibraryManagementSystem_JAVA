@@ -5,14 +5,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/library_db?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/library_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String USER = "root";
-    private static final String PASSWORD = "PassWord"; // তোমার MySQL password
-
+    private static final String PASSWORD = "PassWord"; 
     public static Connection getConnection() {
         try {
             Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            // System.out.println("✅ Database Connected!"); // ড্যাশবোর্ড লোডিং এর সময় এটি সরিয়ে দেওয়া হলো
             return conn;
         } catch (SQLException e) {
             System.out.println("❌ Database Connection Failed!");
