@@ -16,7 +16,7 @@ public class ReturnBookPage {
         issuedIdField.setMaxWidth(300);
 
         Button returnButton = new Button("Return Book");
-        returnButton.setStyle("-fx-font-size: 14px; -fx-background-color: #3498db; -fx-text-fill: white;");
+        returnButton.setStyle("-fx-font-size: 14px; -fx-background-color: #2ecc71; -fx-text-fill: white;");
 
         returnButton.setOnAction(e -> {
             try {

@@ -20,7 +20,7 @@ public class IssueBookPage {
         bookIdField.setMaxWidth(300);
 
         Button issueButton = new Button("Issue Book");
-        issueButton.setStyle("-fx-font-size: 14px; -fx-background-color: #f39c12; -fx-text-fill: white;");
+        issueButton.setStyle("-fx-font-size: 14px; -fx-background-color: #2ecc71; -fx-text-fill: white;");
 
         issueButton.setOnAction(e -> {
             try {

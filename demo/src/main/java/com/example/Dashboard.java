@@ -15,19 +15,21 @@ import javafx.scene.Node;
 public class Dashboard extends Application {
 
     private BorderPane rootLayout;
+    private Button activeButton = null; // ACTIVE ROUTE TRACKER
 
     @Override
     public void start(Stage stage) {
         javafx.geometry.Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        
+
         rootLayout = new BorderPane();
         rootLayout.setStyle("-fx-background-color: #f4f4f4;");
 
         VBox sidebar = createSidebar(stage);
         rootLayout.setLeft(sidebar);
 
+        // Default route
         loadContent(createDashboardContent());
-        
+
         Scene scene = new Scene(rootLayout, primaryScreenBounds.getWidth(), primaryScreenBounds.getHeight());
         stage.setTitle("Library Management System - Dashboard");
         stage.setScene(scene);
@@ -39,10 +41,11 @@ public class Dashboard extends Application {
         rootLayout.setCenter(contentNode);
     }
 
+    // ----------------- SIDEBAR -------------------
     private VBox createSidebar(Stage stage) {
         VBox sidebar = new VBox(15);
         double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
-        sidebar.setPrefWidth(screenWidth * 0.15); 
+        sidebar.setPrefWidth(screenWidth * 0.15);
         sidebar.setStyle("-fx-background-color: #2c3e50; -fx-padding: 20;");
         sidebar.setAlignment(Pos.TOP_CENTER);
 
@@ -50,43 +53,92 @@ public class Dashboard extends Application {
         title.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
 
         Button homeBtn = createSidebarButton("🏠 Dashboard");
-        homeBtn.setOnAction(e -> loadContent(createDashboardContent())); 
+        homeBtn.setOnAction(e -> {
+            setActiveButton(homeBtn);
+            loadContent(createDashboardContent());
+        });
 
         Button addBookBtn = createSidebarButton("➕ Add Book");
-        addBookBtn.setOnAction(e -> loadContent(new AddBookPage().getPane()));
+        addBookBtn.setOnAction(e -> {
+            setActiveButton(addBookBtn);
+            loadContent(new AddBookPage().getPane());
+        });
 
         Button viewBooksBtn = createSidebarButton("📖 View Books");
-        viewBooksBtn.setOnAction(e -> loadContent(new ViewBooksPage().getPane()));
-        
+        viewBooksBtn.setOnAction(e -> {
+            setActiveButton(viewBooksBtn);
+            loadContent(new ViewBooksPage().getPane());
+        });
+
         Button issueBookBtn = createSidebarButton("📤 Issue Book");
-        issueBookBtn.setOnAction(e -> loadContent(new IssueBookPage().getPane()));
-        
+        issueBookBtn.setOnAction(e -> {
+            setActiveButton(issueBookBtn);
+            loadContent(new IssueBookPage().getPane());
+        });
+
         Button returnBookBtn = createSidebarButton("📥 Return Book");
-        returnBookBtn.setOnAction(e -> loadContent(new ReturnBookPage().getPane()));
-        
+        returnBookBtn.setOnAction(e -> {
+            setActiveButton(returnBookBtn);
+            loadContent(new ReturnBookPage().getPane());
+        });
+
         Button viewIssuedBtn = createSidebarButton("📃 View Issued");
-        viewIssuedBtn.setOnAction(e -> loadContent(createViewIssuedBooksPane())); 
+        viewIssuedBtn.setOnAction(e -> {
+            setActiveButton(viewIssuedBtn);
+            loadContent(createViewIssuedBooksPane());
+        });
 
         Button logoutBtn = createSidebarButton("🔒 Logout");
         logoutBtn.setOnAction(e -> {
+            setActiveButton(logoutBtn);
             LoginController login = new LoginController();
-            stage.setMaximized(false); 
+            stage.setMaximized(false);
             login.start(stage);
         });
 
-        sidebar.getChildren().addAll(title, homeBtn, addBookBtn, viewBooksBtn, issueBookBtn, returnBookBtn, viewIssuedBtn, logoutBtn);
+        sidebar.getChildren().addAll(
+                title, homeBtn, addBookBtn, viewBooksBtn, issueBookBtn,
+                returnBookBtn, viewIssuedBtn, logoutBtn
+        );
+
+        // Set default active
+        setActiveButton(homeBtn);
+
         return sidebar;
     }
 
+    // -------------- BUTTON STYLE + ACTIVE/HOVER -------------
     private Button createSidebarButton(String text) {
-        Button btn = new Button(text);
-        btn.setPrefWidth(200);
-        btn.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px;");
-        btn.setOnMouseEntered(e -> btn.setStyle("-fx-background-color: #1abc9c; -fx-text-fill: white; -fx-font-size: 14px;"));
-        btn.setOnMouseExited(e -> btn.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px;"));
-        return btn;
+    Button btn = new Button(text);
+    btn.setPrefWidth(200);
+    btn.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;");
+
+    btn.setOnMouseEntered(e -> {
+        if (btn != activeButton) {
+            btn.setStyle("-fx-background-color: #1abc9c; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;");
+        }
+    });
+
+    btn.setOnMouseExited(e -> {
+        if (btn != activeButton) {
+            btn.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;");
+        }
+    });
+
+    return btn;
+}
+
+
+    private void setActiveButton(Button btn) {
+        if (activeButton != null) {
+            activeButton.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px;");
+        }
+
+        activeButton = btn;
+        activeButton.setStyle("-fx-background-color: #1abc9c; -fx-text-fill: white; -fx-font-size: 14px;");
     }
-    
+
+    // ---------------- DASHBOARD CONTENT ----------------
     private VBox createDashboardContent() {
         VBox content = new VBox(20);
         content.setStyle("-fx-padding: 30;");
@@ -97,13 +149,14 @@ public class Dashboard extends Application {
 
         VBox stats = new VBox(15);
         stats.setAlignment(Pos.CENTER);
+
         stats.getChildren().addAll(
-            createStatCard("Total Books", BookDAO.countTotalBooks()),
-            createStatCard("Total Available Books", BookDAO.countAvailableBooks()),
-            createStatCard("Total Users (Students)", BookDAO.countTotalUsers()),
-            createStatCard("Books Issued", IssuedBookDAO.countIssuedBooks())
+                createStatCard("Total Books", BookDAO.countTotalBooks()),
+                createStatCard("Total Available Books", BookDAO.countAvailableBooks()),
+                createStatCard("Total Users (Students)", BookDAO.countTotalUsers()),
+                createStatCard("Books Issued", IssuedBookDAO.countIssuedBooks())
         );
-        
+
         content.getChildren().addAll(welcome, stats);
         return content;
     }
@@ -113,27 +166,28 @@ public class Dashboard extends Application {
         card.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-background-radius: 5;");
         card.setPrefWidth(300);
         card.setAlignment(Pos.CENTER);
-        
+
         Label titleLabel = new Label(title);
         titleLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #7f8c8d;");
-        
+
         Label countLabel = new Label(String.valueOf(count));
         countLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;");
-        
+
         card.getChildren().addAll(titleLabel, countLabel);
         return card;
     }
-    
+
+    // -------------- VIEW ISSUED BOOKS -----------------
     private VBox createViewIssuedBooksPane() {
         VBox content = new VBox(10);
         content.setStyle("-fx-padding: 20;");
-        
+
         Label title = new Label("📃 Currently Issued Books");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-        
+
         ListView<String> issuedListView = new ListView<>();
         issuedListView.getItems().addAll(IssuedBookDAO.getAllIssuedBooks());
-        
+
         content.getChildren().addAll(title, issuedListView);
         return content;
     }
